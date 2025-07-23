@@ -1,11 +1,11 @@
 import pymysql
 from pymysql.cursors import DictCursor
 import bcrypt
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException,Body,Request
 from passlib.context import CryptContext
 from collections import defaultdict
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, EmailStr
 from starlette.middleware.cors import CORSMiddleware
 from typing import Optional, List
@@ -14,6 +14,12 @@ import logging
 from enum import Enum
 import json
 app = FastAPI(debug=True)
+
+import jwt
+from datetime import datetime, timedelta
+
+SECRET_KEY = "Xzo2JEQwRExLwfRr0WA7R2pcCMotVtG7k-txgaA2jjk6PBmJ_1n8D03NBHaq96AxZDbsdn1efVTqEe-QS_2n9w"
+ALGORITHM = "HS256"
 
 from models import Base
 from database import get_db_connection
@@ -45,6 +51,7 @@ def get_db_connection():
         cursorclass=DictCursor
     )
 
+
 # Password functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -59,6 +66,7 @@ class UserSignup(BaseModel):
     email: str
     password: str
     role: str
+    college_name : Optional[str] = None
 
     # Office
     office_name: Optional[str] = None
@@ -68,16 +76,13 @@ class UserSignup(BaseModel):
     ceo_age: Optional[int] = None
     ceo_qualification: Optional[str] = None
     ceo_experience_years: Optional[int] = None
-
     # School
     school_name: Optional[str] = None
     school_location: Optional[str] = None
     school_user_type: Optional[str] = None
-    #principal
-    principal_name: Optional[str] = None
-    principal_age: Optional[int] = None
-    principal_qualification: Optional[str] = None
+   
     
+   
     
 #organization
 class OrgTypeEnum(str, Enum):
@@ -243,12 +248,20 @@ class AttendanceResponse(BaseModel):
     class Config:
         orm_mode = True
 
+def create_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(hours=24)
+    to_encode.update({"exp": expire})
+    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
 # Signup API
 @app.post("/signup")
 def signup(user: UserSignup):
     db = get_db_connection()
     cursor = db.cursor()
 
+    # Check if email already exists
     cursor.execute("SELECT * FROM users WHERE email=%s", (user.email,))
     if cursor.fetchone():
         db.close()
@@ -256,20 +269,46 @@ def signup(user: UserSignup):
 
     hashed_password = hash_password(user.password)
 
-    if user.role == "office" and user.user_type:
+    # Insert based on role
+    if user.role == "office":
+        if not all([user.office_name, user.location, user.user_type]):
+            db.close()
+            raise HTTPException(status_code=400, detail="Missing office details")
+
         cursor.execute(
-            "INSERT INTO users (email, password, role, office_name, location, user_type) VALUES (%s, %s, %s, %s, %s, %s)",
-            (user.email, hashed_password, user.role, user.office_name, user.location, user.user_type)
+            "INSERT INTO users (email, password, role, office_name, location, user_type, access) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (user.email, hashed_password, user.role, user.office_name, user.location, user.user_type, "office")
         )
-    else:
+
+    elif user.role == "college":
+        if not user.college_name:
+            db.close()
+            raise HTTPException(status_code=400, detail="College name is required")
+
         cursor.execute(
-            "INSERT INTO users (email, password, role) VALUES (%s, %s, %s)",
-            (user.email, hashed_password, user.role)
+            "INSERT INTO users (email, password, role, college_name, access) VALUES (%s, %s, %s, %s, %s)",
+            (user.email, hashed_password, user.role, user.college_name, "college")
+        )
+
+    else:
+        # Default insert for school, superadmin, etc.
+        cursor.execute(
+            "INSERT INTO users (email, password, role, access) VALUES (%s, %s, %s, %s)",
+            (user.email, hashed_password, user.role, user.role)  # use role as access
         )
 
     db.commit()
     db.close()
     return {"message": "User registered successfully"}
+
+
+ROLE_ACCESS_MAP = {
+    "admin": ["dashboard", "schools", "offices", "colleges", "settings"],
+    "school": ["dashboard", "students", "teachers", 'classes',"attendance"],
+    "college": ["dashboard", "departments", "Students", "attendance"],
+    "office": ["dashboard", "employees", "payroll", "settings"]
+}
+
 @app.post("/login")
 def login(user: UserLogin):
     db = get_db_connection()
@@ -280,8 +319,110 @@ def login(user: UserLogin):
 
     if not result or not verify_password(user.password, result['password']):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    result.pop("password",None)
-    return result
+
+    # ✅ Get access based on role instead of DB
+    role = result["role"]
+    access_data = ROLE_ACCESS_MAP.get(role.lower(), [])
+
+    # ✅ Create JWT
+    token_data = {
+        "email": result["email"],
+        "role": role,
+        "access": access_data
+    }
+    token = create_token(token_data)  # Assume this uses jwt.encode()
+
+    # ✅ Send cookie
+    response = JSONResponse(content={
+        "message": "Login successful",
+        "user": token_data
+    })
+    response.set_cookie(
+        key="user",
+        value=token,  # this is the JWT token
+        httponly=False,
+        max_age=86400,
+        path="/",
+        samesite="Lax",
+        secure=False,
+    )
+    return response
+    
+
+# @app.post("/login")
+# def login(user: UserLogin):
+#     db = get_db_connection()
+#     cursor = db.cursor()
+#     cursor.execute("SELECT * FROM users WHERE email=%s", (user.email,))
+#     result = cursor.fetchone()
+#     db.close()
+
+#     if not result or not verify_password(user.password, result['password']):
+#         raise HTTPException(status_code=401, detail="Invalid credentials")
+   
+#     access_data = result.get("access", [])
+#     if isinstance(access_data, str):
+#         try:
+#             access_data = json.loads(access_data)
+#         except:
+#             access_data = []
+
+#     token = jwt.encode({
+#         "email": result["email"],
+#         "role": result["role"],
+#         "access": access_data,
+#         "exp": datetime.utcnow() + timedelta(days=1)
+#     }, SECRET_KEY, algorithm=ALGORITHM)
+
+#     response = JSONResponse(content={
+#         "message": "Login successful",
+#         "user": {
+#             "email": result["email"],
+#             "role": result["role"],
+#             "access": access_data
+#         }
+#     })
+
+#     response.set_cookie(
+#         key="user",
+#         value=token,
+#         max_age=86400,
+#         httponly=True,
+#         samesite="Lax",
+#         secure=False, 
+#         path="/"
+#     )
+
+#     return response
+
+#     @app.get("/me")
+# def get_current_user(request: Request):
+#     token = request.cookies.get("user")
+#     if not token:
+#         raise HTTPException(status_code=401, detail="Not authenticated")
+
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         return {"email": payload["email"], "role": payload["role"], "access": payload["access"]}
+#     except JWTError:
+#         raise HTTPException(status_code=403, detail="Invalid token")
+
+@app.post("/demopannelaccess")
+def demopannelaccess(request: Request):
+    token = request.cookies.get("user")
+    
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {
+            "email": payload["email"],
+            "role": payload["role"],
+            "access": payload["access"]
+        }
+    except JWTError:
+        raise HTTPException(status_code=403, detail="Invalid token")
 
 @app.get("/", response_class=HTMLResponse)
 def home():

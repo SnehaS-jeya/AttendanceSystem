@@ -29,32 +29,53 @@ const Login = () => {
     setRoleId('')
   }
 
-  const handleLogin = (e) => {
-    e.preventDefault()
+ const handleLogin = async (e) => {
+  e.preventDefault()
+  console.log("hello")
+  if (!email || !password || !role) {
+    alert('Please fill all fields')
+    return
+  }
+  
+  try {
+    const response = await fetch('http://localhost:8000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include', 
+      body: JSON.stringify({ email, password }),
+    })
+    console.log(response)
+    const data = await response.json()
 
-    if (username && password && role) {
-      Cookies.set('userRole', role, { expires: 1 }) 
-
+    if (response.ok) {
+      const user = data.user;
+      const role = user.role.toLowerCase();
       switch (role) {
-        case 'Admin':
+        case 'admin':
           navigate('/admin-dashboard')
           break
-        case 'School':
+        case 'school':
           navigate('/dashboard')
           break
-        case 'College':
+        case 'college':
           navigate('/college-dashboard')
           break
-        case 'Office':
+        case 'office':
           navigate('/office-dashboard')
           break
         default:
           navigate('/login')
       }
     } else {
-      alert('Please fill all fields')
+      alert(data.detail || 'Login failed  not ')
     }
-  }   
+  } catch (error) {
+    return console.error(error)
+   //alert('Something went wrong')
+  }
+}
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -74,7 +95,7 @@ const Login = () => {
                     <CFormInput
                       placeholder="Username"
                       autoComplete="username"
-                      value={username}
+                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                     />
                   </CInputGroup>

@@ -6,8 +6,14 @@ const Teachers = React.lazy(()=> import('./views/dashboard/Teachers'))
 const Classes = React.lazy(()=> import('./views/dashboard/Classes'))
 const Attendance = React.lazy(()=> import('./views/dashboard/Attendance'))
 const Attend = React.lazy(() => import('./views/dashboard/Attend'))
-
+const Schools = React.lazy(() =>import('./views/dashboard/Schools'))
 const AdminDashboard = React.lazy(() =>import('./views/admin/AdminDashboard'))
+const Colleges = React.lazy(() =>import('./views/admin/College'))
+const Office = React.lazy(() =>import('./views/admin/Office'))
+const Settings= React.lazy(()=>import('./views/admin/Settings'))
+const CollegeDashboard = React.lazy(()=>import('./views/College/clgdashboard'))
+const Departments=React.lazy(()=>import('./views/College/departments'))
+const CollegeStudents=React.lazy(()=>import('./views/College/CollegeStudents'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -69,7 +75,15 @@ const routes = [
   {path: '/Attendance/Teachers', name:'Attendance-Teacher', element:Attend},
 
   { path: '/admin-dashboard', name: 'admin Dashboard', element: AdminDashboard },
-  
+  {path: '/schools', name:'Schools', element:Schools},
+  {path: '/colleges', name:'Colleges', element: Colleges},
+  {path: '/offices', name:'Office', element: Office},
+  {path: '/settings', name:'Settings', element:Settings},
+
+  {path:'/college-dashboard', name:'College Dashboard', element:CollegeDashboard},
+  {path: '/departments', name:'Departments', element: Departments},
+  {path:'/college-students', name:'College Students', element: CollegeStudents},
+
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },

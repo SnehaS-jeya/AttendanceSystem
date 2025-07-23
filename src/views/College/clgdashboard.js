@@ -1,4 +1,4 @@
-// src/views/dashboard/AdminDashboard.jsx
+// src/views/dashboard/CollegeDashboard.jsx
 
 import React from 'react'
 import {
@@ -7,7 +7,7 @@ import {
   CCol,
   CRow,
   CButton,
-  CButtonGroup
+  CButtonGroup,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilCloudDownload } from '@coreui/icons'
@@ -16,18 +16,17 @@ import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import MainChart from '../dashboard/MainChart'
 
-
-const AdminDashboard = () => {
+const CollegeDashboard = () => {
   return (
     <>
-      <WidgetsDropdown className="mb-4" userType="admin" />
+      <WidgetsDropdown className="mb-4" userType="college" />
 
       <CCard className="mb-4">
         <CCardBody>
           <CRow>
             <CCol sm={5}>
-              <h4 className="card-title mb-0">Admin Overview</h4>
-              <div className="small text-body-secondary">June 2024</div>
+              <h4 className="card-title mb-0">College Overview</h4>
+              <div className="small text-body-secondary">July 2025</div>
             </CCol>
             <CCol sm={7} className="d-none d-md-block">
               <CButton color="primary" className="float-end">
@@ -42,13 +41,13 @@ const AdminDashboard = () => {
               </CButtonGroup>
             </CCol>
           </CRow>
-          <MainChart userType="admin" />
+          <MainChart userType="college" />
         </CCardBody>
       </CCard>
 
-      <WidgetsBrand className="mb-4" withCharts userType="admin" />
+      <WidgetsBrand className="mb-4" withCharts userType="college" />
     </>
   )
 }
 
-export default AdminDashboard
+export default CollegeDashboard

@@ -51,20 +51,47 @@ const WidgetsDropdown = ({ className, userType }) => {
     })
   }, [])
 
-  const data =
-    userType === 'admin'
-      ? [
-          { title: 'TOTAL SCHOOLS', value: 12, color: 'primary', chart: <CChartLine ref={widgetChartRef1} style={chartStyle} /> },
-          { title: 'TOTAL COLLEGES', value: 3, color: 'info', chart: <CChartLine ref={widgetChartRef2} style={chartStyle} /> },
-          { title: 'TOTAL OFFICES', value: 34, color: 'danger', chart: <CChartBar style={chartStyle} /> },
-          { title: 'ADMINS', value: 21, color: 'warning', chart: <CChartBar style={chartStyle} /> },
-        ]
-      : [
-          { title: 'TEACHERS', value: 425, color: 'primary', chart: <CChartLine ref={widgetChartRef1} style={chartStyle} /> },
-          { title: 'STUDENTS', value: 32, color: 'success', chart: <CChartLine ref={widgetChartRef2} style={chartStyle} /> },
-          { title: 'CLASSES', value: 90, color: 'warning', chart: <CChartBar style={chartStyle} /> },
-          { title: 'STAFFS', value: 9, color: 'danger', chart: <CChartBar style={chartStyle} /> },
-        ]
+ const data = (() => {
+  switch (userType?.toLowerCase()) {
+    case 'admin':
+      return [
+        { title: 'TOTAL SCHOOLS', value: 12, color: 'primary', chart: <CChartLine ref={widgetChartRef1} style={chartStyle} /> },
+        { title: 'TOTAL COLLEGES', value: 3, color: 'info', chart: <CChartLine ref={widgetChartRef2} style={chartStyle} /> },
+        { title: 'TOTAL OFFICES', value: 34, color: 'danger', chart: <CChartBar style={chartStyle} /> },
+        { title: 'ADMINS', value: 21, color: 'warning', chart: <CChartBar style={chartStyle} /> },
+      ]
+
+    case 'school':
+      return [
+        { title: 'TEACHERS', value: 425, color: 'primary', chart: <CChartLine ref={widgetChartRef1} style={chartStyle} /> },
+        { title: 'STUDENTS', value: 32, color: 'success', chart: <CChartLine ref={widgetChartRef2} style={chartStyle} /> },
+        { title: 'CLASSES', value: 90, color: 'warning', chart: <CChartBar style={chartStyle} /> },
+        { title: 'STAFFS', value: 9, color: 'danger', chart: <CChartBar style={chartStyle} /> },
+      ]
+
+    case 'college':
+    case 'dean':
+    case 'lecturer':
+      return [
+        { title: 'DEPARTMENTS', value: 8, color: 'primary', chart: <CChartLine ref={widgetChartRef1} style={chartStyle} /> },
+        { title: 'FACULTY', value: 55, color: 'success', chart: <CChartLine ref={widgetChartRef2} style={chartStyle} /> },
+        { title: 'STUDENTS', value: 900, color: 'info', chart: <CChartBar style={chartStyle} /> },
+        { title: 'COURSES', value: 22, color: 'warning', chart: <CChartBar style={chartStyle} /> },
+      ]
+
+    case 'office':
+      return [
+        { title: 'EMPLOYEES', value: 45, color: 'primary', chart: <CChartLine ref={widgetChartRef1} style={chartStyle} /> },
+        { title: 'BRANCHES', value: 10, color: 'success', chart: <CChartLine ref={widgetChartRef2} style={chartStyle} /> },
+        { title: 'PROJECTS', value: 15, color: 'warning', chart: <CChartBar style={chartStyle} /> },
+        { title: 'HR MANAGERS', value: 5, color: 'danger', chart: <CChartBar style={chartStyle} /> },
+      ]
+
+    default:
+      return []
+  }
+})()
+
 
   return (
     <CRow className={className} xs={{ gutter: 4 }}>

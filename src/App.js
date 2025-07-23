@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 
+import {UserProvider } from './components/UserContext'
+
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
 
@@ -33,9 +35,19 @@ const App = () => {
     }
 
     setColorMode(storedTheme)
+    const fetchRole = async () => {
+    try {
+      const res = await axios.get("http://localhost:8000/verify", { withCredentials: true })
+      localStorage.setItem("userType", res.data.role)
+    } catch (err) {
+      console.error("Token invalid or missing")
+    }
+  }
+  fetchRole()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
+    <UserProvider>
     <HashRouter>
       <Suspense
         fallback={
@@ -53,6 +65,7 @@ const App = () => {
         </Routes>
       </Suspense>
     </HashRouter>
+    </UserProvider>
   )
 }
 

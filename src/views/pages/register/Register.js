@@ -14,20 +14,74 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
   const [role, setRole] = useState('')
   const [userType, setUserType] = useState('')
   const [institutionName, setInstitutionName] = useState('')
   const [location, setLocation] = useState('')
 
+  const navigate = useNavigate()
+
   const userTypes = {
     School: ['Principal', 'Teacher', 'Student'],
     College: ['Dean', 'Lecturer', 'Student'],
-    Office: ['Manager','HR','Staff'],
+    Office: ['Manager', 'HR', 'Staff'],
   }
 
   const showInstitutionFields = role === 'School' || role === 'College' || role === 'Office'
+
+  const handleRegister = async (e) => {
+    e.preventDefault()
+    if (!email || !password || !name || !role) {
+      alert('Please fill all required fields')
+      return
+    }
+
+    const bodyData = {
+      email,
+      password,
+      name,
+      role,
+      location,
+      user_type: userType,
+    }
+
+    if (role === 'College') {
+      bodyData.college_name = institutionName
+    } else if (role === 'School') {
+      bodyData.school_name = institutionName
+    } else if (role === 'Office') {
+      bodyData.office_name = institutionName
+    }
+
+    try {
+      const response = await fetch('http://localhost:8000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(bodyData),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        alert('Registration successful! Please login.')
+        navigate('/login')
+      } else {
+        alert(data.detail || 'Registration failed')
+      }
+    } catch (error) {
+      console.error('Register error:', error)
+      alert('Something went wrong during registration')
+    }
+  }
 
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
@@ -36,22 +90,32 @@ const Register = () => {
           <CCol md={9} lg={7} xl={6}>
             <CCard className="mx-4">
               <CCardBody className="p-4">
-                <CForm>
+                <CForm onSubmit={handleRegister}>
                   <h1>Register</h1>
                   <p className="text-body-secondary">Create your account</p>
 
-                  {/* Username */}
+                  {/* Name */}
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <CFormInput placeholder="Username" autoComplete="username" />
+                    <CFormInput
+                      placeholder="Username"
+                      autoComplete="username"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
                   </CInputGroup>
 
                   {/* Email */}
                   <CInputGroup className="mb-3">
                     <CInputGroupText>@</CInputGroupText>
-                    <CFormInput placeholder="Email" autoComplete="email" />
+                    <CFormInput
+                      placeholder="Email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
                   </CInputGroup>
 
                   {/* Password */}
@@ -63,6 +127,8 @@ const Register = () => {
                       type="password"
                       placeholder="Password"
                       autoComplete="new-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                     />
                   </CInputGroup>
 
@@ -78,7 +144,7 @@ const Register = () => {
                     </CFormSelect>
                   </CInputGroup>
 
-                  {/* Institution Name + Location if applicable */}
+                  {/* Conditional Fields */}
                   {showInstitutionFields && (
                     <>
                       <CInputGroup className="mb-3">
@@ -99,7 +165,6 @@ const Register = () => {
                         />
                       </CInputGroup>
 
-                      {/* User Type dropdown */}
                       <CInputGroup className="mb-3">
                         <CInputGroupText>User Type</CInputGroupText>
                         <CFormSelect
@@ -119,7 +184,9 @@ const Register = () => {
 
                   {/* Submit Button */}
                   <div className="d-grid">
-                    <CButton color="primary">Create Account</CButton>
+                    <CButton color="primary" type="submit">
+                      Create Account
+                    </CButton>
                   </div>
                 </CForm>
               </CCardBody>
