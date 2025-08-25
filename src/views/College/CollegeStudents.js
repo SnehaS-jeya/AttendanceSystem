@@ -21,14 +21,14 @@ import { cilSearch, cilPencil, cilTrash, cilDescription } from '@coreui/icons'
 
 const CollegeStudents = () => {
   const studentData = [
-    { rollNo: 'C101', name: 'Aishwarya R', department: 'Computer Science', year: 'I', gender: 'Female' },
-    { rollNo: 'C102', name: 'Rahul M', department: 'Computer Science', year: 'I', gender: 'Male' },
-    { rollNo: 'C103', name: 'Divya S', department: 'Electronics', year: 'II', gender: 'Female' },
-    { rollNo: 'C104', name: 'Manoj K', department: 'Mechanical', year: 'II', gender: 'Male' },
-    { rollNo: 'C105', name: 'Sneha V', department: 'Civil', year: 'III', gender: 'Female' },
-    { rollNo: 'C106', name: 'Arjun T', department: 'Electrical', year: 'III', gender: 'Male' },
-    { rollNo: 'C107', name: 'Lakshmi D', department: 'Electronics', year: 'IV', gender: 'Female' },
-    { rollNo: 'C108', name: 'Karthik S', department: 'Mechanical', year: 'IV', gender: 'Male' },
+    { rollNo: '01', name: 'Aishwarya R', department: 'Computer Science', year: 'I', gender: 'Female' },
+    { rollNo: '02', name: 'Rahul M', department: 'Computer Science', year: 'I', gender: 'Male' },
+    { rollNo: '03', name: 'Divya S', department: 'Electronics', year: 'II', gender: 'Female' },
+    { rollNo: '04', name: 'Manoj K', department: 'Mechanical', year: 'II', gender: 'Male' },
+    { rollNo: '05', name: 'Sneha V', department: 'Civil', year: 'III', gender: 'Female' },
+    { rollNo: '06', name: 'Arjun T', department: 'Electrical', year: 'III', gender: 'Male' },
+    { rollNo: '07', name: 'Lakshmi D', department: 'Electronics', year: 'IV', gender: 'Female' },
+    { rollNo: '08', name: 'Karthik S', department: 'Mechanical', year: 'IV', gender: 'Male' },
   ]
 
   return (

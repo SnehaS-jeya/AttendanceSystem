@@ -14,25 +14,81 @@ import {
 import CIcon from "@coreui/icons-react";
 import { CNavItem, CNavTitle } from "@coreui/react";
 
-export const getNavItems = (access = []) => {
+export const getNavItems = (access = [], role = '') => {
   const nav = [];
   const has = (item) => access.map((x) => x.toLowerCase()).includes(item);
   
-  if (has("dashboard")) {
+  
+    if (role.toLowerCase() === 'admin'){
     nav.push({
       component: CNavItem,
-      name: "Dashboard",
-      to: "/admin-dashboard",
+      name: 'Dashboard',
+      to: '/admin-dashboard',
       icon: <CIcon icon={cilInstitution} customClassName="nav-icon" />,
-    });
+    })
   }
 
-  if (has("schools")) {
+   if (role.toLowerCase() === 'college') {
     nav.push({
       component: CNavItem,
-      name: "Schools",
-      to: "/schools",
-      icon: <CIcon icon={cilFactory} customClassName="nav-icon" />,
+      name: 'Dashboard',
+      to: '/college-dashboard',
+      icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    })
+  }
+
+  if (role.toLowerCase() === 'school'){
+    nav.push({
+      component: CNavItem,
+      name: 'Dashboard',
+      to: '/dashboard',
+      icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    })
+  }
+   if (role.toLowerCase() === 'office'){
+      nav.push({
+      component: CNavItem,
+      name: 'Dashboard',
+      to: '/office-dashboard',
+      icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+    })
+  }
+
+  // if (has("dashboard")) {
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: "Dashboard",
+  //     to: "/admin-dashboard",
+  //     icon: <CIcon icon={cilInstitution} customClassName="nav-icon" />,
+  //   });
+  // }
+
+  
+  //  if (has("clgdashboard")) {
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: "Dashboard",
+  //     to: "/college-dashboard",
+  //     icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+  //   });
+  // }
+
+ 
+  // // Dashboard
+  // if (has('dashboard')) {
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: 'Dashboard',
+  //     to: '/office-dashboard',
+  //     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+  //   })
+  // }
+  if(has('schools')){
+    nav.push({
+      component: CNavItem,
+      name:'Schools',
+      to: '/Schools',
+      icon:<CIcon icon={cilSchool} customClassName="nav-icon" />
     });
   }
 
@@ -45,15 +101,6 @@ export const getNavItems = (access = []) => {
     });
   }
   
-   if (has("clgdashboard")) {
-    nav.push({
-      component: CNavItem,
-      name: "Dashboard",
-      to: "/college-dashboard",
-      icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
-    });
-  }
-
   if (has("offices")) {
     nav.push({
       component: CNavItem,
@@ -71,24 +118,41 @@ export const getNavItems = (access = []) => {
       icon: <CIcon icon={cilGroup} customClassName="nav-icon" />,
     });
   }
-
-  if (has("students")) {
-    nav.push({
-      component: CNavItem,
-      name: "Students",
-      to: "/students",
-      icon: <CIcon icon={cilSchool} customClassName="nav-icon" />,
-    });
+   if (has('students')) {
+    if (role.toLowerCase() === 'college') {
+      nav.push({
+        component: CNavItem,
+        name: 'College Students',
+        to: '/college-students',
+        icon: <CIcon icon={cilSchool} customClassName="nav-icon" />,
+      })
+    } else {
+      nav.push({
+        component: CNavItem,
+        name: 'Students',
+        to: '/students',
+        icon: <CIcon icon={cilSchool} customClassName="nav-icon" />,
+      })
+    }
   }
 
-   if (has("students")) {
-    nav.push({
-      component: CNavItem,
-      name: "College Students",
-      to: "/college-students",
-      icon: <CIcon icon={cilSchool} customClassName="nav-icon" />,
-    });
-  }
+  // if (has("students")) {
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: "Students",
+  //     to: "/students",
+  //     icon: <CIcon icon={cilSchool} customClassName="nav-icon" />,
+  //   });
+  // }
+
+  //  if (has("students")) {
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: "College Students",
+  //     to: "/college-students",
+  //     icon: <CIcon icon={cilSchool} customClassName="nav-icon" />,
+  //   });
+  // }
   
   if (has("teachers")) {
     nav.push({
@@ -107,33 +171,107 @@ export const getNavItems = (access = []) => {
     });
   }
 
-  if (has("payroll")) {
-    nav.push({
-      component: CNavItem,
-      name: "Payroll",
-      to: "/payroll",
-      icon: <CIcon icon={cilBriefcase} customClassName="nav-icon" />,
-    });
-  }
+ if (has("employees")) {
+  nav.push({
+    component: CNavItem,
+    name: "Employees",
+    to: "/employees",
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+  });
+}
+
+if (has("requests")) {
+  nav.push({
+    component: CNavItem,
+    name: "Leave Requests",
+    to: "/requests",
+    icon: <CIcon icon={cilBriefcase} customClassName="nav-icon" />,
+  });
+}
 
   if (has("attendance")) {
-    nav.push({
-      component: CNavTitle,
-      name: "Attendance",
-    });
+  nav.push({
+    component: CNavTitle,
+    name: "Attendance",
+  });
+
+  if (role === "College") {
     nav.push({
       component: CNavItem,
-      name: "Teachers ",
-      to: "/attendance/teachers",
+      name: "Faculties",
+      to: "/attendance/college-faculties",
       icon: <CIcon icon={cilUserFollow} customClassName="nav-icon" />,
     });
-    
+
+    nav.push({
+      component: CNavItem,
+      name: " College Student",
+      to: "/attendance/college-students",
+      icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    });
+  } else if (role.toLowerCase() === 'school' ) {
+    nav.push({
+      component: CNavItem,
+      name: "Teachers",
+      to: "/attendance/school-teachers",
+      icon: <CIcon icon={cilUserFollow} customClassName="nav-icon" />,
+    });
+
     nav.push({
       component: CNavItem,
       name: "Students",
-      to: "/attendance/students",
+      to: "/attendance/school-students",
       icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
     });
+  } else if (role === "Office") {
+    nav.push({
+      component: CNavItem,
+      name: "Attendance",
+      to: "/office/attendance",
+      icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    });
+  }
+  
+  
+
+  // if (has("attendance")) {
+  //   nav.push({
+  //     component: CNavTitle,
+  //     name: "Attendance",
+  //   });
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: "Teachers ",
+  //     to: "/attendance/teachers",
+  //     icon: <CIcon icon={cilUserFollow} customClassName="nav-icon" />,
+  //   });
+    
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: "Students",
+  //     to: "/attendance/students",
+  //     icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+  //   });
+  // }
+
+  //   if (has("attendance")) {
+  //   nav.push({
+  //     component: CNavTitle,
+  //     name: "Attendance",
+  //   });
+  //   nav.push({
+  //     component: CNavItem,
+  //     name: "Faculties ",
+  //     to: "/attendance/teachers",
+  //     icon: <CIcon icon={cilUserFollow} customClassName="nav-icon" />,
+  //   });
+    
+    // nav.push({
+    //   component: CNavItem,
+    //   name: "College Students",
+    //   to: "/attendance/students",
+    //   icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    // });
   }
 
   if (has("settings")) {

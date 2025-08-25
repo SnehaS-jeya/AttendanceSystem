@@ -67,6 +67,12 @@ def get_school_dashboard(school_id: int):
             raise HTTPException(status_code=404, detail="Student role not found")
         student_role_id = student_role[0]
 
+        #count classes
+        cursor.execute(
+            "SELECT COUNT(*) FROM employee WHERE org_id =%s AND designation_id= %s",
+            (school_id,)
+        )
+
         # Count Teachers
         cursor.execute(
             "SELECT COUNT(*) FROM employee WHERE org_id = %s AND designation_id = %s",

@@ -18,7 +18,7 @@ import {
 import { cilSearch, cilCloudDownload } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-const SchoolStudents = () => {
+const CollegeStudent = () => {
   const [search, setSearch] = useState('')
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
@@ -26,8 +26,8 @@ const SchoolStudents = () => {
 
   const attendanceData = [
     {
-      name: 'test',
-      email: 'test@gmail.com',
+      name: 'Vignesh S',
+      email: 'vignesh@notasco.com',
       date: '2025-07-25',
       status: 'Present',
       checkIn: '10:11 AM',
@@ -37,8 +37,8 @@ const SchoolStudents = () => {
       totalWork: '00:00',
     },
     {
-      name: 'user',
-      email: 'user@gmail.com.com',
+      name: 'Arun R',
+      email: 'arun@notasco.com',
       date: '2025-07-25',
       status: 'Absent',
       checkIn: '--',
@@ -61,40 +61,29 @@ const SchoolStudents = () => {
     <CCard className="mb-4">
       <CCardHeader>
         <CRow className="g-3 align-items-end">
-          <CCol md={1}>
+          <CCol md={2}>
             <label>From Date</label>
             <CFormInput type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
           </CCol>
-          <CCol md={1}>
+          <CCol md={2}>
             <label>To Date</label>
             <CFormInput type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
           </CCol>
           <CCol md={2}>
-            <label>Select Class</label>
-            <CFormSelect value={reportType} onChange={(e) => setReportType(e.target.value)}>
-              <option value="VI">VI</option>
-              <option value="VII">VII </option>
-              <option value="VIII">VIII</option>
-              <option value="VI">XI</option>
-              <option value="VII">X </option>
-              <option value="VIII">XI</option>
-            </CFormSelect>
-          </CCol>
-          <CCol md={2}>
-            <label>Search Student</label>
-            <CFormInput
-              placeholder="Enter name"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </CCol>
-           <CCol md={2}>
             <label>Report Type</label>
             <CFormSelect value={reportType} onChange={(e) => setReportType(e.target.value)}>
               <option value="Monthly">Monthly</option>
               <option value="Weekly">Weekly</option>
               <option value="Half-Yearly">Half-Yearly</option>
             </CFormSelect>
+          </CCol>
+          <CCol md={3}>
+            <label>Search Employee</label>
+            <CFormInput
+              placeholder="Enter name or email"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </CCol>
           <CCol md={3} className="text-end">
             <CButton color="primary" className="mt-3 w-100" onClick={handleDownload}>
@@ -161,4 +150,4 @@ const SchoolStudents = () => {
   )
 }
 
-export default SchoolStudents
+export default CollegeStudent

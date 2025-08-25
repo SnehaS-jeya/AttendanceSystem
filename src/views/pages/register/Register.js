@@ -41,7 +41,7 @@ const Register = () => {
       alert('Please fill all required fields')
       return
     }
-
+    
     const bodyData = {
       email,
       password,

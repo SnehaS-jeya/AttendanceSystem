@@ -4,16 +4,25 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Students = React.lazy(()=> import('./views/dashboard/Students'))
 const Teachers = React.lazy(()=> import('./views/dashboard/Teachers'))
 const Classes = React.lazy(()=> import('./views/dashboard/Classes'))
-const Attendance = React.lazy(()=> import('./views/dashboard/Attendance'))
-const Attend = React.lazy(() => import('./views/dashboard/Attend'))
-const Schools = React.lazy(() =>import('./views/dashboard/Schools'))
+const SchoolStudents = React.lazy(()=> import('./views/dashboard/Attendance'))
+const SchoolTeachers = React.lazy(() => import('./views/dashboard/Attend'))
+
+const Schools = React.lazy(() =>import('./views/admin/Schools'))
 const AdminDashboard = React.lazy(() =>import('./views/admin/AdminDashboard'))
 const Colleges = React.lazy(() =>import('./views/admin/College'))
 const Office = React.lazy(() =>import('./views/admin/Office'))
 const Settings= React.lazy(()=>import('./views/admin/Settings'))
+
 const CollegeDashboard = React.lazy(()=>import('./views/College/clgdashboard'))
 const Departments=React.lazy(()=>import('./views/College/departments'))
 const CollegeStudents=React.lazy(()=>import('./views/College/CollegeStudents'))
+const CollegeStudent=React.lazy(()=>import('./views/College/Clgstudattend'))
+const Faculty=React.lazy(()=>import('./views/College/Faculties'))
+
+const OfficeDashboard=React.lazy(()=>import('./views/office/ofcdashboard'))
+const Employees=React.lazy(()=>import('./views/office/employees'))
+const Requests=React.lazy(()=>import('./views/office/Requests'))
+const OfficeAttendance=React.lazy(()=>import('./views/office/OfcAttend'))
 
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -71,8 +80,8 @@ const routes = [
   {path: '/Students', name: 'Students', element: Students},
   {path: '/Teachers', name:'Teachers', element: Teachers},
   {path: '/Classes', name:'Classes', element: Classes},
-  {path: '/Attendance/Students', name:'Attendance-Student', element: Attendance},
-  {path: '/Attendance/Teachers', name:'Attendance-Teacher', element:Attend},
+  {path: '/attendance/school-students', name:'Students', element: SchoolStudents},
+  {path: '/attendance/school-teachers', name:'Teachers', element: SchoolTeachers},
 
   { path: '/admin-dashboard', name: 'admin Dashboard', element: AdminDashboard },
   {path: '/schools', name:'Schools', element:Schools},
@@ -82,7 +91,14 @@ const routes = [
 
   {path:'/college-dashboard', name:'College Dashboard', element:CollegeDashboard},
   {path: '/departments', name:'Departments', element: Departments},
-  {path:'/college-students', name:'College Students', element: CollegeStudents},
+  {path:'/college-students', name:'CollegeStudents', element: CollegeStudents},
+  {path:'/attendance/college-students',name:'College Student',element:CollegeStudent},
+  {path:'/attendance/college-faculties',name:'Faculties',element:Faculty},
+
+  {path:'/office-dashboard', name:'Office Dashboard', element:OfficeDashboard},
+  {path:'/employees', name:'Employees', element:Employees},
+  {path:'/requests', name:'Request', element:Requests},
+  {path:'/office/attendance', name:'Attendance', element:OfficeAttendance},
 
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },

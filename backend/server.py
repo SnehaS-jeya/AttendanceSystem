@@ -58,6 +58,7 @@ def hash_password(password: str) -> str:
 
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
 app.get("/")
 def read_root():
     return {"message": "Welcome to the Attendance Management System!"}
@@ -80,10 +81,7 @@ class UserSignup(BaseModel):
     school_name: Optional[str] = None
     school_location: Optional[str] = None
     school_user_type: Optional[str] = None
-   
-    
-   
-    
+     
 #organization
 class OrgTypeEnum(str, Enum):
     School ="School"
@@ -199,12 +197,6 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
     
-
-class UserSignup(BaseModel):
-    email: EmailStr
-    password: str
-    role: str
-
 #school
 class SchoolCreate(BaseModel):
     school_name: str
@@ -246,7 +238,8 @@ class AttendanceResponse(BaseModel):
     check_out: time | None
 
     class Config:
-        orm_mode = True
+        # orm_mode = True
+        from_attributes =True
 
 def create_token(data: dict):
     to_encode = data.copy()
@@ -256,12 +249,50 @@ def create_token(data: dict):
     return token
 
 # Signup API
+# @app.post("/signup")
+# def signup(user: UserSignup):
+#     db = get_db_connection()
+#     cursor = db.cursor()
+
+#     # check duplicate email
+#     cursor.execute("SELECT * FROM users WHERE email=%s", (user.email,))
+#     if cursor.fetchone():
+#         db.close()
+#         raise HTTPException(status_code=400, detail="Email already exists")
+
+#     hashed_password = hash_password(user.password)
+
+#     # Insert into users
+#     cursor.execute(
+#         "INSERT INTO users (email, password, role, access) VALUES (%s, %s, %s, %s)",
+#         (user.email, hashed_password, user.role,"active")
+#     )
+#     user_id = cursor.lastrowid  # get newly inserted user's ID
+
+#     # If role is school → create school record
+#     if user.role == "school":
+#         cursor.execute(
+#             "INSERT INTO schools (school_name, school_location, principal_id) VALUES (%s, %s, %s)",
+#             (user.school_name, user.school_location, user_id)
+#         )
+#         school_id = cursor.lastrowid  # get the new school id
+
+#         # update users table with school_id
+#         cursor.execute(
+#             "UPDATE users SET school_id=%s WHERE id=%s",
+#             (school_id, user_id)
+#         )
+
+#     db.commit()
+#     db.close()
+#     return {"message": "User registered successfully"}
+
 @app.post("/signup")
 def signup(user: UserSignup):
     db = get_db_connection()
     cursor = db.cursor()
 
-    # Check if email already exists
+    # check duplicate email
     cursor.execute("SELECT * FROM users WHERE email=%s", (user.email,))
     if cursor.fetchone():
         db.close()
@@ -269,44 +300,66 @@ def signup(user: UserSignup):
 
     hashed_password = hash_password(user.password)
 
-    # Insert based on role
-    if user.role == "office":
-        if not all([user.office_name, user.location, user.user_type]):
-            db.close()
-            raise HTTPException(status_code=400, detail="Missing office details")
+    # Insert into users (common fields only)
+    cursor.execute(
+        "INSERT INTO users (email, password, role, access) VALUES (%s, %s, %s, %s)",
+        (user.email, hashed_password, user.role, "active")
+    )
+    user_id = cursor.lastrowid
 
+    # Initialize IDs
+    school_id = None
+    college_id = None
+    office_id = None
+
+    # --- School role ---
+    if user.role == "school":
         cursor.execute(
-            "INSERT INTO users (email, password, role, office_name, location, user_type, access) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (user.email, hashed_password, user.role, user.office_name, user.location, user.user_type, "office")
+            "INSERT INTO schools (school_name, school_location, principal_id) VALUES (%s, %s, %s)",
+            (user.school_name, user.school_location, user_id)
         )
+        school_id = cursor.lastrowid
+        cursor.execute("UPDATE users SET school_id=%s WHERE id=%s", (school_id, user_id))
 
+    # --- College role ---
     elif user.role == "college":
         if not user.college_name:
             db.close()
             raise HTTPException(status_code=400, detail="College name is required")
 
         cursor.execute(
-            "INSERT INTO users (email, password, role, college_name, access) VALUES (%s, %s, %s, %s, %s)",
-            (user.email, hashed_password, user.role, user.college_name, "college")
-        )
+    "INSERT INTO colleges (college_name, college_location, dean_id) VALUES (%s, %s, %s)",
+    (user.college_name, user.college_location, user_id)
+)
+        college_id = cursor.lastrowid
+        cursor.execute("UPDATE users SET college_id=%s WHERE id=%s", (college_id, user_id))
 
-    else:
-        # Default insert for school, superadmin, etc.
+    # --- Office role ---
+    elif user.role == "office":
         cursor.execute(
-            "INSERT INTO users (email, password, role, access) VALUES (%s, %s, %s, %s)",
-            (user.email, hashed_password, user.role, user.role)  # use role as access
-        )
+    "INSERT INTO offices (office_name, location, ceo_id, ceo_name, ceo_email) VALUES (%s, %s, %s, %s, %s)",
+    (user.office_name, user.location, user_id, user.ceo_name, user.email)
+)
+
+        office_id = cursor.lastrowid
+        cursor.execute("UPDATE users SET office_id=%s WHERE id=%s", (office_id, user_id))
 
     db.commit()
     db.close()
-    return {"message": "User registered successfully"}
 
+    return {
+        "message": "User registered successfully",
+        "user_id": user_id,
+        "school_id": school_id,
+        "college_id": college_id,
+        "office_id": office_id
+    }
 
 ROLE_ACCESS_MAP = {
     "admin": ["dashboard", "schools", "offices", "colleges", "settings"],
     "school": ["dashboard", "students", "teachers", 'classes',"attendance"],
     "college": ["dashboard", "departments", "Students", "attendance"],
-    "office": ["dashboard", "employees", "payroll", "settings"]
+    "office": ["dashboard", "employees","Requests","attendance"],
 }
 
 @app.post("/login")
@@ -330,7 +383,7 @@ def login(user: UserLogin):
         "role": role,
         "access": access_data
     }
-    token = create_token(token_data)  # Assume this uses jwt.encode()
+    token = create_token(token_data)  
 
     # ✅ Send cookie
     response = JSONResponse(content={
@@ -339,7 +392,7 @@ def login(user: UserLogin):
     })
     response.set_cookie(
         key="user",
-        value=token,  # this is the JWT token
+        value=token, 
         httponly=False,
         max_age=86400,
         path="/",
@@ -395,8 +448,8 @@ def login(user: UserLogin):
 
 #     return response
 
-#     @app.get("/me")
-# def get_current_user(request: Request):
+# @app.get("/me")
+# async def get_current_user(request: Request):
 #     token = request.cookies.get("user")
 #     if not token:
 #         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -408,9 +461,12 @@ def login(user: UserLogin):
 #         raise HTTPException(status_code=403, detail="Invalid token")
 
 @app.post("/demopannelaccess")
-def demopannelaccess(request: Request):
+async def demopannelaccess(request: Request):
+    print("Cookies received:", request.cookies)
+
     token = request.cookies.get("user")
-    
+    print("Token from cookie:", token)
+
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -421,14 +477,16 @@ def demopannelaccess(request: Request):
             "role": payload["role"],
             "access": payload["access"]
         }
-    except JWTError:
+    except JWTError as e:
+        print("JWT decode error:", e)
         raise HTTPException(status_code=403, detail="Invalid token")
+
 
 @app.get("/", response_class=HTMLResponse)
 def home():
     return "<h2>FastAPI User Management is running ✅</h2>"
 
-# =============================
+
 # add organization
 
 @app.post("/add-organization")
@@ -523,6 +581,7 @@ def delete_department(dept_id:int):
     cursor.close()
     conn.close()
     return {"message":"Department deleted successfully"}
+
 #add designation
 @app.post("/add-designation")
 def add_designation(data: DesignationCreate):
@@ -534,6 +593,7 @@ def add_designation(data: DesignationCreate):
     cursor.close()
     conn.close()
     return {"message": "Designation added successfully"}
+
 #get designation
 @app.get("/get-designations")
 def get_designations():
@@ -651,6 +711,7 @@ def update_employee(emp_id: int, employee: EmployeeOut):
     finally:
         cursor.close()
         conn.close()
+
 #delete employees
 @app.delete("/delete-employee/{emp_id}")
 def delete_employee(emp_id:int):
@@ -710,6 +771,7 @@ def get_attendance():
     finally:
         cursor.close()
         conn.close()
+
 #update attendance
 @app.put("/update-attendance/{attendance_id}")
 def update_attendance(attendance_id: int, updated: AttendanceOut):
@@ -729,6 +791,7 @@ def update_attendance(attendance_id: int, updated: AttendanceOut):
     finally:
         cursor.close()
         conn.close()
+
 #delete attendance
 @app.delete("/delete-attendance/{attendance_id}")
 def delete_attendance(attendance_id: int):
@@ -761,8 +824,7 @@ def create_leave_type(leave_type: LeavetypeBase):
     finally:
         cursor.close()
         conn.close()
-
-
+        
 # Get all leave types
 @app.get("/leave-types", response_model=List[LeaveType])
 def get_leave_types():

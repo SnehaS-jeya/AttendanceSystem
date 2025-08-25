@@ -1,4 +1,5 @@
 
+
 import React from 'react'
 import {
   CCard,
@@ -15,16 +16,16 @@ import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import WidgetsBrand from '../widgets/WidgetsBrand'
 import MainChart from '../dashboard/MainChart'
 
-const Dashboard = () => {
+const OfficeDashboard = () => {
   return (
     <>
-      <WidgetsDropdown className="mb-4" userType="school" />
+      <WidgetsDropdown className="mb-4" userType="office" />
 
       <CCard className="mb-4">
         <CCardBody>
           <CRow>
             <CCol sm={5}>
-              <h4 className="card-title mb-0">School Overview</h4>
+              <h4 className="card-title mb-0">Office  Overview</h4>
               <div className="small text-body-secondary">July 2025</div>
             </CCol>
             <CCol sm={7} className="d-none d-md-block">
@@ -40,13 +41,13 @@ const Dashboard = () => {
               </CButtonGroup>
             </CCol>
           </CRow>
-          <MainChart userType="school" />
+          <MainChart userType="office" />
         </CCardBody>
       </CCard>
 
-      <WidgetsBrand className="mb-4" withCharts userType="school" />
+      <WidgetsBrand className="mb-4" withCharts userType="office" />
     </>
   )
 }
 
-export default Dashboard
+export default OfficeDashboard
